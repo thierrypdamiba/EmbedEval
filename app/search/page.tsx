@@ -1,17 +1,16 @@
 "use client";
 
-import { ChatWindow } from "@/components/ChatWindow";
-import { useState } from "react";
+import { ChatWindow } from '@/components/ChatWindow';
+import { useState } from 'react';
 
-export default function AgentsPage() {
+export default function SearchPage() {
   const [embeddingModel, setEmbeddingModel] = useState("text-embedding-ada-002");
   const [chatModel, setChatModel] = useState("openai");
 
-  function handleModdelChange(e: string) {
+  function handleModelChange(e: string) {
     setChatModel(e);
   }
 
-  // Updated formatAIResponse function
   function formatAIResponse(response: string) {
     return (
       <div>
@@ -38,7 +37,7 @@ export default function AgentsPage() {
       <select
         name="chatModel"
         id="chatModel"
-        onChange={(e) => handleModdelChange(e.target.value)}
+        onChange={(e) => handleModelChange(e.target.value)}
         className="bg-black"
       >
         <option value="openai">OpenAI</option>
@@ -54,12 +53,12 @@ export default function AgentsPage() {
 
   return (
     <ChatWindow
-      endpoint={`api/chat/evaluate?embeddingModel=${embeddingModel}&chatModel=${chatModel}`}
+      endpoint={`api/chat/search?embeddingModel=${embeddingModel}&chatModel=${chatModel}`}
       emptyStateComponent={InfoCard}
       showIntermediateStepsToggle={true}
-      placeholder={"Ask about recent meetings, e.g., 'What was discussed in the last marketing meeting?'"}
-      emoji="📅"
-      formatResult={formatAIResponse} // New prop to format the result
+      placeholder={"Search for meeting information, e.g., 'What was discussed in the last marketing meeting?'"}
+      emoji="🔍"
+      formatResult={formatAIResponse}
     />
   );
 }

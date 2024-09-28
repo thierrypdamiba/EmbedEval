@@ -3,56 +3,38 @@
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { Message } from "ai";
+import { Message } from "ai/react";
 import { useChat } from "ai/react";
 import { useRef, useState, ReactElement } from "react";
 import type { FormEvent } from "react";
 
 import { ChatMessageBubble } from "@/components/ChatMessageBubble";
-import { UploadDocumentsForm } from "@/components/UploadDocumentsForm";
 import { IntermediateStep } from "./IntermediateStep";
 
-export function ChatWindow(props: {
+interface ChatWindowProps {
   endpoint: string;
   emptyStateComponent: ReactElement;
   placeholder?: string;
   titleText?: string;
   emoji?: string;
-  showIngestForm?: boolean;
   showIntermediateStepsToggle?: boolean;
-  embeddingModel: string;
-}) {
-  const messageContainerRef = useRef<HTMLDivElement | null>(null);
+  formatResult?: (result: string) => React.ReactNode;
+}
 
-  const {
-    endpoint,
-    emptyStateComponent,
-    placeholder,
-    titleText = "An LLM",
-    showIngestForm,
-    showIntermediateStepsToggle,
-    emoji,
-    embeddingModel,
-  } = props;
+export function ChatWindow({
+  endpoint,
+  emptyStateComponent,
+  placeholder,
+  titleText = "An LLM",
+  showIntermediateStepsToggle,
+  emoji,
+  formatResult,
+}: ChatWindowProps) {
+  const messageContainerRef = useRef<HTMLDivElement | null>(null);
 
   const [showIntermediateSteps, setShowIntermediateSteps] = useState(false);
   const [intermediateStepsLoading, setIntermediateStepsLoading] =
     useState(false);
-  const ingestForm = showIngestForm && (
-    <UploadDocumentsForm embeddingModel={embeddingModel}></UploadDocumentsForm>
-  );
-  const intemediateStepsToggle = showIntermediateStepsToggle && (
-    <div>
-      <input
-        type="checkbox"
-        id="show_intermediate_steps"
-        name="show_intermediate_steps"
-        checked={showIntermediateSteps}
-        onChange={(e) => setShowIntermediateSteps(e.target.checked)}
-      ></input>
-      <label htmlFor="show_intermediate_steps"> Show intermediate steps</label>
-    </div>
-  );
 
   const [sourcesForMessages, setSourcesForMessages] = useState<
     Record<string, any>
@@ -89,6 +71,19 @@ export function ChatWindow(props: {
     },
   });
 
+  const intermediateStepsToggle = showIntermediateStepsToggle && (
+    <div className="flex items-center mb-4">
+      <input
+        type="checkbox"
+        id="showIntermediateSteps"
+        checked={showIntermediateSteps}
+        onChange={(e) => setShowIntermediateSteps(e.target.checked)}
+        className="mr-2"
+      />
+      <label htmlFor="showIntermediateSteps">Show intermediate steps</label>
+    </div>
+  );
+
   async function sendMessage(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (messageContainerRef.current) {
@@ -117,52 +112,29 @@ export function ChatWindow(props: {
         body: JSON.stringify({
           messages: messagesWithUserReply,
           show_intermediate_steps: true,
+          // Add the embedding model explicitly here
+          embedding_model: "text-embedding-ada-002",
         }),
       });
       const json = await response.json();
       setIntermediateStepsLoading(false);
       if (response.status === 200) {
-        const responseMessages: Message[] = json.messages;
-        // Represent intermediate steps as system messages for display purposes
-        // TODO: Add proper support for tool messages
-        const toolCallMessages = responseMessages.filter(
-          (responseMessage: Message) => {
-            return (
-              (responseMessage.role === "assistant" &&
-                !!responseMessage.tool_calls?.length) ||
-              responseMessage.role === "tool"
-            );
-          },
-        );
-        const intermediateStepMessages = [];
-        for (let i = 0; i < toolCallMessages.length; i += 2) {
-          const aiMessage = toolCallMessages[i];
-          const toolMessage = toolCallMessages[i + 1];
-          intermediateStepMessages.push({
-            id: (messagesWithUserReply.length + i / 2).toString(),
-            role: "system" as const,
-            content: JSON.stringify({
-              action: aiMessage.tool_calls?.[0],
-              observation: toolMessage.content,
-            }),
+        // Check if json.answer exists (from the updated API response)
+        if (json.answer) {
+          setMessages([
+            ...messagesWithUserReply,
+            {
+              id: messagesWithUserReply.length.toString(),
+              content: json.answer,
+              role: "assistant",
+            },
+          ]);
+        } else {
+          // Handle the case where the expected response format is not received
+          toast("Unexpected response format from the server.", {
+            theme: "dark",
           });
         }
-        const newMessages = messagesWithUserReply;
-        for (const message of intermediateStepMessages) {
-          newMessages.push(message);
-          setMessages([...newMessages]);
-          await new Promise((resolve) =>
-            setTimeout(resolve, 1000 + Math.random() * 1000),
-          );
-        }
-        setMessages([
-          ...newMessages,
-          {
-            id: newMessages.length.toString(),
-            content: responseMessages[responseMessages.length - 1].content,
-            role: "assistant",
-          },
-        ]);
       } else {
         if (json.error) {
           toast(json.error, {
@@ -173,6 +145,15 @@ export function ChatWindow(props: {
       }
     }
   }
+
+  const formatMessage = (message: Message) => {
+    if ('content' in message) {
+      return formatResult ? formatResult(message.content) : (
+        <div className="whitespace-pre-wrap">{message.content}</div>
+      );
+    }
+    return '';
+  };
 
   return (
     <div
@@ -188,9 +169,7 @@ export function ChatWindow(props: {
         {messages.length > 0
           ? [...messages].reverse().map((m, i) => {
               const sourceKey = (messages.length - 1 - i).toString();
-              return m.role === "system" ? (
-                <IntermediateStep key={m.id} message={m}></IntermediateStep>
-              ) : (
+              return (
                 <ChatMessageBubble
                   key={m.id}
                   message={m}
@@ -202,10 +181,8 @@ export function ChatWindow(props: {
           : ""}
       </div>
 
-      {messages.length === 0 && ingestForm}
-
       <form onSubmit={sendMessage} className="flex w-full flex-col">
-        <div className="flex">{intemediateStepsToggle}</div>
+        <div className="flex">{intermediateStepsToggle}</div>
         <div className="flex flex-col w-full mt-4">
           <input
             className="grow mr-8 p-4 rounded max-w-[75%]"

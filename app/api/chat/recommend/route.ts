@@ -46,24 +46,21 @@ export async function POST(req: NextRequest) {
     // Get response from Anthropic
     const anthropicResponse = await anthropic.messages.create({
       model: "claude-3-sonnet-20240229",
-      max_tokens: 300,
-      temperature: 0,
-      system: "You are an expert business analyst providing insights on corporate meeting data. Offer a concise, professional analysis. Use actual line breaks to separate sections. Do not mention AI or search results.",
+      max_tokens: 500,
+      temperature: 0.7,
+      system: "You are an expert meeting planner. Based on the user's role and goal, recommend a meeting with a title, topics, attendees, and date. Use the provided meeting data for context, but feel free to suggest new ideas that align with the user's needs. Format your response clearly with sections for Title, Topics, Attendees, and Date.",
       messages: [
         {
           role: "user",
-          content: `Based on the following meeting data, provide a brief analysis in response to this query: '${query}'\n\nMeeting Data:\n${JSON.stringify(formattedResults, null, 2)}\n\nSynthesize the information to directly answer the query. If the information is insufficient, briefly state what's missing. Use actual line breaks to separate main points or sections.`
+          content: `Based on this role and goal: '${query}', and considering the following meeting data for context, recommend a meeting. Include a title, topics to discuss, potential attendees, and a suggested date.\n\nMeeting Data:\n${JSON.stringify(formattedResults, null, 2)}`
         }
       ],
     });
 
     const answer = anthropicResponse.content[0].text;
 
-    // Format the answer with actual line breaks
-    const formattedAnswer = answer.split('\n').join('\n\n');
-
-    // Return the formatted answer
-    return NextResponse.json(formattedAnswer);
+    // Return the answer without additional formatting
+    return NextResponse.json(answer);
   } catch (error) {
     console.error('Error:', error);
     return NextResponse.json('An error occurred while processing your request.', { status: 500 });

@@ -46,26 +46,29 @@ export async function POST(req: NextRequest) {
     // Get response from Anthropic
     const anthropicResponse = await anthropic.messages.create({
       model: "claude-3-sonnet-20240229",
-      max_tokens: 300,
-      temperature: 0,
-      system: "You are an expert business analyst providing insights on corporate meeting data. Offer a concise, professional analysis. Use actual line breaks to separate sections. Do not mention AI or search results.",
+      max_tokens: 1000,
+      temperature: 0.5,
+      system: "You are an expert meeting analyst. Based on the user's current interest or need, suggest relevant past meetings. Format your response as a JSON array of meeting objects, each containing title, date, attendees, topics, and a brief explanation of its relevance.",
       messages: [
         {
           role: "user",
-          content: `Based on the following meeting data, provide a brief analysis in response to this query: '${query}'\n\nMeeting Data:\n${JSON.stringify(formattedResults, null, 2)}\n\nSynthesize the information to directly answer the query. If the information is insufficient, briefly state what's missing. Use actual line breaks to separate main points or sections.`
+          content: `Based on this current interest or need: '${query}', and considering the following meeting data, suggest up to 3 relevant past meetings. Format your response as a JSON array of meeting objects.\n\nMeeting Data:\n${JSON.stringify(formattedResults, null, 2)}`
         }
       ],
     });
 
     const answer = anthropicResponse.content[0].text;
 
-    // Format the answer with actual line breaks
-    const formattedAnswer = answer.split('\n').join('\n\n');
-
-    // Return the formatted answer
-    return NextResponse.json(formattedAnswer);
+    // Parse the JSON response and return it
+    try {
+      const parsedAnswer = JSON.parse(answer);
+      return NextResponse.json(parsedAnswer);
+    } catch (parseError) {
+      console.error('Error parsing Anthropic response:', parseError);
+      return NextResponse.json({ error: 'Invalid response format from AI model' }, { status: 500 });
+    }
   } catch (error) {
     console.error('Error:', error);
-    return NextResponse.json('An error occurred while processing your request.', { status: 500 });
+    return NextResponse.json({ error: 'An error occurred while processing your request', details: error.message }, { status: 500 });
   }
 }
