@@ -22,16 +22,18 @@ export default function AgentsPage() {
 
   const InfoCard = (
     <div className="rounded bg-[#25252d] w-full max-h-[85%] margin-auto">
-      <h1 className="text-3xl md:text-4xl mb-4">Meeting Search</h1>
+      <h1 className="text-3xl md:text-4xl mb-4">Chat with Your Zoom Meetings</h1>
       <p>
-        This tool allows you to search through meeting transcripts and summaries using advanced language models.
+        Welcome to this Qdrant-powered application built with Next.js and LangChain. 
+        Interact with your Zoom meeting transcripts using advanced language models.
       </p>
       <br />
-      <h2>How to use:</h2>
+      <h2>How it works:</h2>
       <ol className="list-decimal list-inside">
-        <li>The embedding model is set to OpenAI's text-embedding-ada-002 for optimal performance.</li>
+        <li>Your Zoom meeting transcripts are processed and stored using Qdrant vector database.</li>
+        <li>LangChain is used to create a powerful natural language interface.</li>
         <li>Choose a chat model below to process your queries.</li>
-        <li>Use the input area to ask questions about meetings or search for specific information.</li>
+        <li>Ask questions about your meetings or search for specific information in the chat window.</li>
       </ol>
       <br />
       <h2>Choose A Chat Model</h2>
@@ -47,7 +49,10 @@ export default function AgentsPage() {
       <br />
       <br />
       <p>
-        Start by asking questions about meetings, participants, decisions, or any other relevant information!
+        Start by asking questions about your Zoom meetings, such as "What were the key points discussed in yesterday's marketing meeting?"
+      </p>
+      <p className="mt-4 text-sm text-gray-400">
+        Created by Thierry Damiba
       </p>
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 
-import { ChatWindow } from '@/components/ChatWindow';
-import { useState } from 'react';
+import { ChatWindow } from "@/components/ChatWindow";
+import { useState } from "react";
 
 export default function SearchPage() {
   const [embeddingModel, setEmbeddingModel] = useState("text-embedding-ada-002");
@@ -21,16 +21,17 @@ export default function SearchPage() {
 
   const InfoCard = (
     <div className="rounded bg-[#25252d] w-full max-h-[85%] margin-auto">
-      <h1 className="text-3xl md:text-4xl mb-4">Meeting Search</h1>
+      <h1 className="text-3xl md:text-4xl mb-4">Search Your Zoom Meetings</h1>
       <p>
-        This tool allows you to search through meeting transcripts and summaries using advanced language models.
+        Welcome to the Zoom Meeting Search tool. Find specific information from your past meetings quickly and easily.
       </p>
       <br />
-      <h2>How to use:</h2>
+      <h2>How it works:</h2>
       <ol className="list-decimal list-inside">
-        <li>The embedding model is set to OpenAI's text-embedding-ada-002 for optimal performance.</li>
+        <li>Your Zoom meeting transcripts are indexed in the Qdrant vector database.</li>
+        <li>Use natural language to search through your meeting content.</li>
         <li>Choose a chat model below to process your queries.</li>
-        <li>Use the input area to ask questions about meetings or search for specific information.</li>
+        <li>Ask specific questions or search for topics discussed in your meetings.</li>
       </ol>
       <br />
       <h2>Choose A Chat Model</h2>
@@ -46,7 +47,10 @@ export default function SearchPage() {
       <br />
       <br />
       <p>
-        Start by asking questions about meetings, participants, decisions, or any other relevant information!
+        Start by asking questions like "What were the action items from last week's team meeting?" or "Find discussions about the new product launch."
+      </p>
+      <p className="mt-4 text-sm text-gray-400">
+        Created by Thierry Damiba
       </p>
     </div>
   );
@@ -56,7 +60,7 @@ export default function SearchPage() {
       endpoint={`api/chat/search?embeddingModel=${embeddingModel}&chatModel=${chatModel}`}
       emptyStateComponent={InfoCard}
       showIntermediateStepsToggle={true}
-      placeholder={"Search for meeting information, e.g., 'What was discussed in the last marketing meeting?'"}
+      placeholder={"Search your meetings, e.g., 'What were the key decisions made in the last project review?'"}
       emoji="🔍"
       formatResult={formatAIResponse}
     />

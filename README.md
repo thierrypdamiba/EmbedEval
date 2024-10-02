@@ -1,45 +1,65 @@
-# EmbedEval
+# Qdrant Zoom Deploying
 
-EmbedEval is a web application that lets AI engineers compare the performance of different text embedding models in the context of retrieval augmented generation.
+This directory contains the deployment configuration and code for the Qdrant Zoom project, which is a part of the larger EmbedEval application.
 
-This project is based on the open-source [LangChain+NextJS](https://vercel.com/templates/next.js/langchain-starter) template.
+## 📁 Directory Structure
 
-## 🚀 Getting Started
+- `app/`: Contains the Next.js application code
+  - `layout.tsx`: Defines the main layout for the application
+  - `page.tsx`: The main page component
+- `.yarnrc.yml`: Yarn configuration file
+- `README.md`: This file, containing deployment instructions
 
-First, clone this repo and download it locally.
+## 🚀 Deployment Instructions
 
-Next, you'll need to set up environment variables in your repo's `.env.local` file. Copy the `.env.example` file to `.env.local`.
+To deploy this part of the project:
 
-This project uses the following services for which API keys are needed:
+1. Ensure all dependencies are installed:
+   ```bash
+   yarn install
+   ```
 
-OpenAI
-Qdrant
-HuggingFaceHub
-Cohere
-Mistral
-Voyage
-Nomic
-Anthropic
+2. Set up your environment variables:
+   - Create a `.env.local` file in this directory
+   - Add necessary API keys and configuration values
 
-Next, install the required packages using your preferred package manager (e.g. `yarn`).
+3. Build the project:
+   ```bash
+   yarn build
+   ```
 
-Now you're ready to run the development server:
+4. Start the production server:
+   ```bash
+   yarn start
+   ```
 
-```bash
-yarn dev
-```
+## 🔧 Configuration
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result!
+Make sure to configure the following in your deployment environment:
 
-Ask the bot something and you'll see a streamed response:
+- Node.js version (as specified in the project root, if applicable)
+- Environment variables
+- Any necessary build commands or scripts
 
-## ▲ Deploy on Vercel
+## 📚 Project Structure
 
-When ready, you can deploy your app on the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme).
+This Next.js application uses the App Router structure:
 
-Check out the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- `app/`: The main application directory
+  - `layout.tsx`: The root layout component that wraps all pages
+  - `page.tsx`: The home page component
 
-## Thank You!
+This structure allows for easy addition of new routes and pages in the future by adding new directories and `page.tsx` files within the `app/` directory.
 
-Thanks for reading! If you have any questions or comments, reach out to us on Twitter
-[@LangChainAI](https://twitter.com/langchainai), or [click here to join our Discord server](https://discord.gg/langchain).
+## 📚 Additional Resources
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Vercel Deployment Guide](https://vercel.com/docs/concepts/deployments/overview)
+
+## 🤝 Contributing
+
+For contribution guidelines, please refer to the main project README in the root directory.
+
+## 📄 License
+
+This project is licensed under the terms specified in the main EmbedEval project. See the root directory for license information.
